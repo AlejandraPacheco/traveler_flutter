@@ -1,68 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:traveler/model/viaje.dart';
-import 'package:traveler/data/database_helper.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../application/providers/actividad_provider.dart';
+import '../../model/viaje.dart';
+import '../../model/actividad.dart';
 import 'form_viaje_screen.dart';
 import 'form_actividad_screen.dart';
-import 'package:traveler/model/actividad.dart';
 
-class DetalleViajeScreen extends StatefulWidget {
+class DetalleViajeScreen extends ConsumerWidget {
   final Viaje viaje;
   const DetalleViajeScreen({super.key, required this.viaje});
 
   @override
-  State<DetalleViajeScreen> createState() => _DetalleViajeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final actividadesAsync = ref.watch(actividadListProvider(viaje.id!));
 
-class _DetalleViajeScreenState extends State<DetalleViajeScreen> {
-  final dbHelper = DatabaseHelper();
-
-  List<Actividad> actividades = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _cargarActividades();
-  }
-
-  Future<void> _cargarActividades() async {
-    final lista = await dbHelper.obtenerActividadesPorViaje(widget.viaje.id!);
-    setState(() {
-      actividades = lista;
-    });
-  }
-
-  Future<void> _editarViaje() async {
-    final actualizado = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => FormularioViajeScreen(viaje: widget.viaje),
-      ),
-    );
-
-    if (actualizado == true) {
-      if (context.mounted)
-        Navigator.pop(context, true); // Refrescar lista viajes
+    Future<void> _editarViaje() async {
+      final actualizado = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => FormularioViajeScreen(viaje: viaje)),
+      );
+      if (actualizado == true && context.mounted) {
+        Navigator.pop(context, true);
+      }
     }
-  }
 
-  Future<void> _nuevaActividad() async {
-    final creado = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => FormularioActividadScreen(viajeId: widget.viaje.id!),
-      ),
-    );
-    if (creado == true) {
-      _cargarActividades();
+    Future<void> _nuevaActividad() async {
+      final creado = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => FormularioActividadScreen(viajeId: viaje.id!),
+        ),
+      );
+      if (creado == true) {
+        ref.refresh(actividadListProvider(viaje.id!));
+      }
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    final v = widget.viaje;
     return Scaffold(
       appBar: AppBar(
-        title: Text('${v.ciudad}, ${v.pais}'),
+        title: Text('${viaje.ciudad}, ${viaje.pais}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -76,13 +52,13 @@ class _DetalleViajeScreenState extends State<DetalleViajeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Región: ${v.region ?? "No especificado"}'),
-            Text('Fecha inicio: ${v.fechaInicio}'),
-            Text('Fecha fin: ${v.fechaFin}'),
-            Text('Transporte: ${v.transporte ?? "No especificado"}'),
-            Text('Alojamiento: ${v.alojamiento ?? "No especificado"}'),
-            Text('Notas: ${v.notasPersonales ?? "Sin notas"}'),
-            Text('Clima: ${v.clima ?? "No especificado"}'),
+            Text('Región: ${viaje.region ?? "No especificado"}'),
+            Text('Fecha inicio: ${viaje.fechaInicio}'),
+            Text('Fecha fin: ${viaje.fechaFin}'),
+            Text('Transporte: ${viaje.transporte ?? "No especificado"}'),
+            Text('Alojamiento: ${viaje.alojamiento ?? "No especificado"}'),
+            Text('Notas: ${viaje.notasPersonales ?? "Sin notas"}'),
+            Text('Clima: ${viaje.clima ?? "No especificado"}'),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _nuevaActividad,
@@ -95,21 +71,25 @@ class _DetalleViajeScreenState extends State<DetalleViajeScreen> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             Expanded(
-              child: actividades.isEmpty
-                  ? const Center(child: Text('No hay actividades aún.'))
-                  : ListView.builder(
-                      itemCount: actividades.length,
-                      itemBuilder: (context, index) {
-                        final act = actividades[index];
-                        return ListTile(
-                          title: Text(act.tipo),
-                          subtitle: Text(act.descripcion ?? ''),
-                          trailing: act.puntuacion != null
-                              ? Text('⭐ ${act.puntuacion}')
-                              : null,
-                        );
-                      },
-                    ),
+              child: actividadesAsync.when(
+                data: (actividades) => actividades.isEmpty
+                    ? const Center(child: Text('No hay actividades aún.'))
+                    : ListView.builder(
+                        itemCount: actividades.length,
+                        itemBuilder: (context, index) {
+                          final act = actividades[index];
+                          return ListTile(
+                            title: Text(act.tipo),
+                            subtitle: Text(act.descripcion ?? ''),
+                            trailing: act.puntuacion != null
+                                ? Text('⭐ ${act.puntuacion}')
+                                : null,
+                          );
+                        },
+                      ),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, _) => Center(child: Text('Error: \$e')),
+              ),
             ),
           ],
         ),

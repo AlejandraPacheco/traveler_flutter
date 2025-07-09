@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:traveler/data/database_helper.dart';
-import 'package:traveler/model/actividad.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../model/actividad.dart';
+import '../../application/services/database_service.dart';
 
-class FormularioActividadScreen extends StatefulWidget {
+class FormularioActividadScreen extends ConsumerStatefulWidget {
   final int viajeId;
-
   const FormularioActividadScreen({super.key, required this.viajeId});
 
   @override
-  State<FormularioActividadScreen> createState() =>
+  ConsumerState<FormularioActividadScreen> createState() =>
       _FormularioActividadScreenState();
 }
 
-class _FormularioActividadScreenState extends State<FormularioActividadScreen> {
+class _FormularioActividadScreenState
+    extends ConsumerState<FormularioActividadScreen> {
   final _formKey = GlobalKey<FormState>();
-  final dbHelper = DatabaseHelper();
-
   final _tipoCtrl = TextEditingController();
   final _descripcionCtrl = TextEditingController();
   final _puntuacionCtrl = TextEditingController();
@@ -24,6 +23,7 @@ class _FormularioActividadScreenState extends State<FormularioActividadScreen> {
 
   Future<void> _guardarActividad() async {
     if (_formKey.currentState!.validate()) {
+      final service = ref.read(databaseServiceProvider);
       int? puntuacion = int.tryParse(_puntuacionCtrl.text);
 
       final nuevaActividad = Actividad(
@@ -39,10 +39,8 @@ class _FormularioActividadScreenState extends State<FormularioActividadScreen> {
             : _ubicacionUrlCtrl.text,
       );
 
-      await dbHelper.insertarActividad(nuevaActividad);
-      if (context.mounted) {
-        Navigator.pop(context, true); // Regresa true para refrescar actividades
-      }
+      await service.insertarActividad(nuevaActividad);
+      if (context.mounted) Navigator.pop(context, true);
     }
   }
 
@@ -71,8 +69,8 @@ class _FormularioActividadScreenState extends State<FormularioActividadScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Tipo de actividad',
                 ),
-                validator: (value) =>
-                    value!.isEmpty ? 'Este campo es obligatorio' : null,
+                validator: (v) =>
+                    v!.isEmpty ? 'Este campo es obligatorio' : null,
               ),
               TextFormField(
                 controller: _descripcionCtrl,
@@ -88,11 +86,10 @@ class _FormularioActividadScreenState extends State<FormularioActividadScreen> {
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value!.isEmpty) return null; // opcional
+                  if (value!.isEmpty) return null;
                   final n = int.tryParse(value);
-                  if (n == null || n < 1 || n > 5) {
+                  if (n == null || n < 1 || n > 5)
                     return 'Ingrese un número entre 1 y 5';
-                  }
                   return null;
                 },
               ),

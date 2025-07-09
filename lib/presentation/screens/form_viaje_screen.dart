@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:traveler/data/database_helper.dart';
-import 'package:traveler/model/viaje.dart';
+import '../../model/viaje.dart';
+import '../../application/services/database_service.dart';
 
-class FormularioViajeScreen extends StatefulWidget {
-  final Viaje? viaje; // Si es null, se crea uno nuevo
-
+class FormularioViajeScreen extends ConsumerStatefulWidget {
+  final Viaje? viaje;
   const FormularioViajeScreen({super.key, this.viaje});
 
   @override
-  State<FormularioViajeScreen> createState() => _FormularioViajeScreenState();
+  ConsumerState<FormularioViajeScreen> createState() =>
+      _FormularioViajeScreenState();
 }
 
-class _FormularioViajeScreenState extends State<FormularioViajeScreen> {
+class _FormularioViajeScreenState extends ConsumerState<FormularioViajeScreen> {
   final _formKey = GlobalKey<FormState>();
-  final dbHelper = DatabaseHelper();
-
-  late TextEditingController _paisCtrl;
-  late TextEditingController _ciudadCtrl;
-  late TextEditingController _regionCtrl;
-  late TextEditingController _transporteCtrl;
-  late TextEditingController _alojamientoCtrl;
-  late TextEditingController _notasCtrl;
-  late TextEditingController _climaCtrl;
+  late TextEditingController _paisCtrl,
+      _ciudadCtrl,
+      _regionCtrl,
+      _transporteCtrl,
+      _alojamientoCtrl,
+      _notasCtrl,
+      _climaCtrl;
 
   DateTime? _fechaInicio;
   DateTime? _fechaFin;
@@ -30,36 +29,20 @@ class _FormularioViajeScreenState extends State<FormularioViajeScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Si hay viaje, precarga los campos, si no, vacíos
-    _paisCtrl = TextEditingController(text: widget.viaje?.pais ?? '');
-    _ciudadCtrl = TextEditingController(text: widget.viaje?.ciudad ?? '');
-    _regionCtrl = TextEditingController(text: widget.viaje?.region ?? '');
-    _transporteCtrl = TextEditingController(
-      text: widget.viaje?.transporte ?? '',
-    );
-    _alojamientoCtrl = TextEditingController(
-      text: widget.viaje?.alojamiento ?? '',
-    );
-    _notasCtrl = TextEditingController(
-      text: widget.viaje?.notasPersonales ?? '',
-    );
-    _climaCtrl = TextEditingController(text: widget.viaje?.clima ?? '');
-
-    _fechaInicio = widget.viaje != null
-        ? DateTime.tryParse(widget.viaje!.fechaInicio)
-        : null;
-
-    _fechaFin = widget.viaje != null
-        ? DateTime.tryParse(widget.viaje!.fechaFin)
-        : null;
+    final v = widget.viaje;
+    _paisCtrl = TextEditingController(text: v?.pais ?? '');
+    _ciudadCtrl = TextEditingController(text: v?.ciudad ?? '');
+    _regionCtrl = TextEditingController(text: v?.region ?? '');
+    _transporteCtrl = TextEditingController(text: v?.transporte ?? '');
+    _alojamientoCtrl = TextEditingController(text: v?.alojamiento ?? '');
+    _notasCtrl = TextEditingController(text: v?.notasPersonales ?? '');
+    _climaCtrl = TextEditingController(text: v?.clima ?? '');
+    _fechaInicio = v != null ? DateTime.tryParse(v.fechaInicio) : null;
+    _fechaFin = v != null ? DateTime.tryParse(v.fechaFin) : null;
   }
 
-  Future<void> _seleccionarFecha({
-    required BuildContext context,
-    required bool esInicio,
-  }) async {
-    final DateTime? picked = await showDatePicker(
+  Future<void> _seleccionarFecha({required bool esInicio}) async {
+    final picked = await showDatePicker(
       context: context,
       initialDate: esInicio
           ? (_fechaInicio ?? DateTime.now())
@@ -67,7 +50,6 @@ class _FormularioViajeScreenState extends State<FormularioViajeScreen> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-
     if (picked != null) {
       setState(() {
         if (esInicio) {
@@ -83,7 +65,8 @@ class _FormularioViajeScreenState extends State<FormularioViajeScreen> {
     if (_formKey.currentState!.validate() &&
         _fechaInicio != null &&
         _fechaFin != null) {
-      final viajeGuardado = Viaje(
+      final service = ref.read(databaseServiceProvider);
+      final viaje = Viaje(
         id: widget.viaje?.id,
         pais: _paisCtrl.text,
         ciudad: _ciudadCtrl.text,
@@ -100,16 +83,12 @@ class _FormularioViajeScreenState extends State<FormularioViajeScreen> {
       );
 
       if (widget.viaje == null) {
-        // Nuevo viaje
-        await dbHelper.insertarViaje(viajeGuardado);
+        await service.insertarViaje(viaje);
       } else {
-        // Actualizar viaje
-        await dbHelper.actualizarViaje(viajeGuardado);
+        await service.actualizarViaje(viaje);
       }
 
-      if (context.mounted) {
-        Navigator.pop(context, true); // Regresa true para refrescar listas
-      }
+      if (context.mounted) Navigator.pop(context, true);
     }
   }
 
@@ -139,14 +118,12 @@ class _FormularioViajeScreenState extends State<FormularioViajeScreen> {
               TextFormField(
                 controller: _paisCtrl,
                 decoration: const InputDecoration(labelText: 'País'),
-                validator: (value) =>
-                    value!.isEmpty ? 'Este campo es obligatorio' : null,
+                validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
               ),
               TextFormField(
                 controller: _ciudadCtrl,
                 decoration: const InputDecoration(labelText: 'Ciudad'),
-                validator: (value) =>
-                    value!.isEmpty ? 'Este campo es obligatorio' : null,
+                validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
               ),
               TextFormField(
                 controller: _regionCtrl,
@@ -165,8 +142,7 @@ class _FormularioViajeScreenState extends State<FormularioViajeScreen> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () =>
-                        _seleccionarFecha(context: context, esInicio: true),
+                    onPressed: () => _seleccionarFecha(esInicio: true),
                     child: const Text('Seleccionar'),
                   ),
                 ],
@@ -181,8 +157,7 @@ class _FormularioViajeScreenState extends State<FormularioViajeScreen> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () =>
-                        _seleccionarFecha(context: context, esInicio: false),
+                    onPressed: () => _seleccionarFecha(esInicio: false),
                     child: const Text('Seleccionar'),
                   ),
                 ],
