@@ -23,4 +23,18 @@ class RecomendacionService {
         .from('recomendaciones_usuario')
         .insert(recomendacion.toMap());
   }
+
+  Future<List<Recomendacion>> obtenerRecomendacionesDeOtrosUsuarios(
+    String userId,
+  ) async {
+    final response = await _supabase
+        .from('recomendaciones_usuario')
+        .select()
+        .neq('user_id', userId) // distinto al usuario actual
+        .order('fecha_publicacion', ascending: false);
+
+    return (response as List)
+        .map((item) => Recomendacion.fromMap(item))
+        .toList();
+  }
 }

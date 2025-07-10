@@ -15,3 +15,14 @@ final recomendacionesUsuarioProvider = FutureProvider<List<Recomendacion>>((
 
   return service.obtenerRecomendacionesUsuario(userId);
 });
+
+final recomendacionesPublicasProvider = FutureProvider<List<Recomendacion>>((
+  ref,
+) async {
+  final service = ref.read(recomendacionServiceProvider);
+  final userId = ref.watch(currentUserIdProvider);
+
+  if (userId == null) return [];
+
+  return service.obtenerRecomendacionesDeOtrosUsuarios(userId);
+});

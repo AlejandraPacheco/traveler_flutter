@@ -6,6 +6,7 @@ import 'form_viaje_screen.dart';
 import 'detalle_viaje_screen.dart';
 import '../../application/providers/auth_provider.dart';
 import 'recomendaciones_screen.dart';
+import 'explorar_recomendaciones_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -35,37 +36,54 @@ class HomeScreen extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            child: Column(
               children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    final creado = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const FormularioViajeScreen(),
-                      ),
-                    );
-                    if (creado == true) {
-                      ref.refresh(viajeListProvider);
-                    }
-                  },
-                  child: const Text('Agregar nuevo viaje'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final creado = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const FormularioViajeScreen(),
+                          ),
+                        );
+                        if (creado == true) {
+                          ref.refresh(viajeListProvider);
+                        }
+                      },
+                      child: const Text('Agregar nuevo viaje'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const RecomendacionesScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text('Mis Recomendaciones'),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const RecomendacionesScreen(),
+                        builder: (_) => const ExplorarRecomendacionesScreen(),
                       ),
                     );
                   },
-                  child: const Text('Mis Recomendaciones'),
+                  child: const Text('Explorar recomendaciones'),
                 ),
               ],
             ),
           ),
+
           Expanded(
             child: viajesAsync.when(
               data: (viajes) => viajes.isEmpty
