@@ -4,11 +4,24 @@ import '../../application/providers/recomendacion_provider.dart';
 import 'form_recomendacion_screen.dart';
 import 'detalle_recomendacion_screen.dart';
 
-class RecomendacionesScreen extends ConsumerWidget {
+class RecomendacionesScreen extends ConsumerStatefulWidget {
   const RecomendacionesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RecomendacionesScreen> createState() =>
+      _RecomendacionesScreenState();
+}
+
+class _RecomendacionesScreenState extends ConsumerState<RecomendacionesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Fuerza actualización de las recomendaciones cada vez que se entra
+    Future.microtask(() => ref.invalidate(recomendacionesUsuarioProvider));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final recomendacionesAsync = ref.watch(recomendacionesUsuarioProvider);
 
     return Scaffold(
@@ -56,7 +69,7 @@ class RecomendacionesScreen extends ConsumerWidget {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const FormRecomendacionScreen()),
-          ).then((_) => ref.refresh(recomendacionesUsuarioProvider));
+          ).then((_) => ref.invalidate(recomendacionesUsuarioProvider));
         },
         icon: const Icon(Icons.add),
         label: const Text('Añadir recomendación'),
