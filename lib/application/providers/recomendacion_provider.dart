@@ -9,8 +9,7 @@ final recomendacionesUsuarioProvider = FutureProvider<List<Recomendacion>>((
   ref,
 ) async {
   final service = ref.read(recomendacionServiceProvider);
-  final session = ref.read(authStateProvider).value;
-  final userId = session?.session?.user.id;
+  final userId = ref.watch(currentUserIdProvider);
 
   if (userId == null) return [];
 
