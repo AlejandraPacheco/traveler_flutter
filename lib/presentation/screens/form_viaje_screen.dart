@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../model/viaje.dart';
 import '../../application/services/database_service.dart';
+import '../../application/providers/auth_provider.dart';
 
 class FormularioViajeScreen extends ConsumerStatefulWidget {
   final Viaje? viaje;
@@ -66,8 +67,10 @@ class _FormularioViajeScreenState extends ConsumerState<FormularioViajeScreen> {
         _fechaInicio != null &&
         _fechaFin != null) {
       final service = ref.read(databaseServiceProvider);
+      final userId = ref.read(currentUserIdProvider);
       final viaje = Viaje(
         id: widget.viaje?.id,
+        userId: userId!,
         pais: _paisCtrl.text,
         ciudad: _ciudadCtrl.text,
         region: _regionCtrl.text.isEmpty ? null : _regionCtrl.text,

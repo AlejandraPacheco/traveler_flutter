@@ -1,5 +1,6 @@
 class Viaje {
   final int? id;
+  final String userId;
   final String pais;
   final String ciudad;
   final String? region;
@@ -13,6 +14,7 @@ class Viaje {
 
   Viaje({
     this.id,
+    required this.userId,
     required this.pais,
     required this.ciudad,
     this.region,
@@ -28,6 +30,7 @@ class Viaje {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'user_id': userId,
       'pais': pais,
       'ciudad': ciudad,
       'region': region,
@@ -44,6 +47,7 @@ class Viaje {
   factory Viaje.fromMap(Map<String, dynamic> map) {
     return Viaje(
       id: map['id'],
+      userId: map['user_id'], // nuevo
       pais: map['pais'],
       ciudad: map['ciudad'],
       region: map['region'],
@@ -53,7 +57,7 @@ class Viaje {
       alojamiento: map['alojamiento'],
       notasPersonales: map['notas_personales'],
       clima: map['clima'],
-      sincronizado: (map['sincronizado'] ?? 0) == 1,
+      sincronizado: map['sincronizado'] == 1,
     );
   }
 }

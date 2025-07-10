@@ -29,6 +29,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE viajes_personales (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
         pais TEXT NOT NULL,
         ciudad TEXT NOT NULL,
         region TEXT,
@@ -66,6 +67,17 @@ class DatabaseHelper {
   Future<List<Viaje>> obtenerViajes() async {
     final db = await database;
     final maps = await db.query('viajes_personales');
+
+    return maps.map((map) => Viaje.fromMap(map)).toList();
+  }
+
+  Future<List<Viaje>> obtenerViajesPorUsuario(String userId) async {
+    final db = await database;
+    final maps = await db.query(
+      'viajes_personales',
+      where: 'user_id = ?',
+      whereArgs: [userId],
+    );
 
     return maps.map((map) => Viaje.fromMap(map)).toList();
   }
