@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../application/providers/recomendacion_provider.dart';
 import 'form_recomendacion_screen.dart';
+import 'detalle_recomendacion_screen.dart';
 
 class RecomendacionesScreen extends ConsumerWidget {
   const RecomendacionesScreen({super.key});
@@ -33,6 +34,15 @@ class RecomendacionesScreen extends ConsumerWidget {
                   trailing: rec.puntuacion != null
                       ? Chip(label: Text('⭐ ${rec.puntuacion}'))
                       : null,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            DetalleRecomendacionScreen(recomendacion: rec),
+                      ),
+                    );
+                  },
                 ),
               );
             },

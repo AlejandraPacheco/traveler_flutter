@@ -2,12 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../application/providers/recomendacion_provider.dart';
 import '../../application/providers/auth_provider.dart';
+import 'detalle_recomendacion_screen.dart';
 
-class ExplorarRecomendacionesScreen extends ConsumerWidget {
+class ExplorarRecomendacionesScreen extends ConsumerStatefulWidget {
   const ExplorarRecomendacionesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ExplorarRecomendacionesScreen> createState() =>
+      _ExplorarRecomendacionesScreenState();
+}
+
+class _ExplorarRecomendacionesScreenState
+    extends ConsumerState<ExplorarRecomendacionesScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Invalida y recarga datos cada vez que entra a esta pantalla
+    ref.invalidate(recomendacionesPublicasProvider);
+    ref.invalidate(favoritosUsuarioProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final recomendacionesAsync = ref.watch(recomendacionesPublicasProvider);
     final favoritosAsync = ref.watch(favoritosUsuarioProvider);
 
@@ -77,6 +93,15 @@ class ExplorarRecomendacionesScreen extends ConsumerWidget {
                           }
                         },
                       ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                DetalleRecomendacionScreen(recomendacion: rec),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },

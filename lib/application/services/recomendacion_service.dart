@@ -62,4 +62,16 @@ class RecomendacionService {
       'recomendacion_id': recomendacionId,
     });
   }
+
+  Future<List<Recomendacion>> obtenerFavoritosUsuario(String userId) async {
+    final response = await _supabase
+        .from('favoritos')
+        .select('recomendaciones_usuario(*)')
+        .eq('user_id', userId)
+        .order('fecha_guardado', ascending: false);
+
+    return (response as List)
+        .map((item) => Recomendacion.fromMap(item['recomendaciones_usuario']))
+        .toList();
+  }
 }

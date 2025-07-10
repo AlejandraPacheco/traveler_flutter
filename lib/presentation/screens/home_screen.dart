@@ -7,6 +7,7 @@ import 'detalle_viaje_screen.dart';
 import '../../application/providers/auth_provider.dart';
 import 'recomendaciones_screen.dart';
 import 'explorar_recomendaciones_screen.dart';
+import 'favoritos_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -79,6 +80,17 @@ class HomeScreen extends ConsumerWidget {
                     );
                   },
                   child: const Text('Explorar recomendaciones'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const FavoritosScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Mis Favoritos'),
                 ),
               ],
             ),

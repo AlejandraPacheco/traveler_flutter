@@ -36,3 +36,14 @@ final favoritosUsuarioProvider = FutureProvider<List<String>>((ref) async {
 
   return service.obtenerIdsFavoritosUsuario(userId);
 });
+
+final favoritosRecomendacionesProvider = FutureProvider<List<Recomendacion>>((
+  ref,
+) async {
+  final service = ref.read(recomendacionServiceProvider);
+  final session = ref.read(authStateProvider).value;
+  final userId = session?.session?.user.id;
+
+  if (userId == null) return [];
+  return service.obtenerFavoritosUsuario(userId);
+});
