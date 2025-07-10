@@ -26,43 +26,78 @@ class _RecomendacionesScreenState extends ConsumerState<RecomendacionesScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Mis Recomendaciones')),
-      body: recomendacionesAsync.when(
-        data: (recomendaciones) {
-          if (recomendaciones.isEmpty) {
-            return const Center(child: Text('Aún no hay recomendaciones.'));
-          }
-
-          return ListView.builder(
-            itemCount: recomendaciones.length,
-            itemBuilder: (context, index) {
-              final rec = recomendaciones[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: ListTile(
-                  title: Text('${rec.lugarRecomendado} - ${rec.tipo}'),
-                  subtitle: Text(
-                    '${rec.ciudad}, ${rec.pais}\n${rec.comentario ?? ''}',
-                  ),
-                  isThreeLine: true,
-                  trailing: rec.puntuacion != null
-                      ? Chip(label: Text('⭐ ${rec.puntuacion}'))
-                      : null,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            DetalleRecomendacionScreen(recomendacion: rec),
-                      ),
-                    );
-                  },
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF4A90E2), Color(0xFF50E3C2)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: recomendacionesAsync.when(
+          data: (recomendaciones) {
+            if (recomendaciones.isEmpty) {
+              return const Center(
+                child: Text(
+                  'Aún no hay recomendaciones.',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
               );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error al cargar: $e')),
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              itemCount: recomendaciones.length,
+              itemBuilder: (context, index) {
+                final rec = recomendaciones[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 0,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  color: Colors.white.withOpacity(0.9),
+                  child: ListTile(
+                    title: Text(
+                      '${rec.lugarRecomendado} - ${rec.tipo}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      '${rec.ciudad}, ${rec.pais}\n${rec.comentario ?? ''}',
+                    ),
+                    isThreeLine: true,
+                    trailing: rec.puntuacion != null
+                        ? Chip(
+                            label: Text('⭐ ${rec.puntuacion}'),
+                            backgroundColor: Colors.amber.shade100,
+                          )
+                        : null,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              DetalleRecomendacionScreen(recomendacion: rec),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            );
+          },
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: Colors.white),
+          ),
+          error: (e, _) => Center(
+            child: Text(
+              'Error al cargar: $e',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -73,6 +108,7 @@ class _RecomendacionesScreenState extends ConsumerState<RecomendacionesScreen> {
         },
         icon: const Icon(Icons.add),
         label: const Text('Añadir recomendación'),
+        backgroundColor: Colors.deepPurpleAccent,
       ),
     );
   }

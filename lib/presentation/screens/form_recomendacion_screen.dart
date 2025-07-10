@@ -100,54 +100,58 @@ class _FormRecomendacionScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Nueva Recomendación')),
-      body: Padding(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF43CEA2), Color(0xFF185A9D)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
+              _campoTexto(
                 controller: _paisCtrl,
-                decoration: const InputDecoration(labelText: 'País'),
+                label: 'País',
+                icon: Icons.flag,
                 validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
               ),
-              TextFormField(
+              _campoTexto(
                 controller: _ciudadCtrl,
-                decoration: const InputDecoration(labelText: 'Ciudad'),
+                label: 'Ciudad',
+                icon: Icons.location_city,
                 validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
               ),
-              TextFormField(
+              _campoTexto(
                 controller: _regionCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Región (opcional)',
-                ),
+                label: 'Región (opcional)',
+                icon: Icons.map,
               ),
-              TextFormField(
+              _campoTexto(
                 controller: _lugarCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Lugar recomendado',
-                ),
+                label: 'Lugar recomendado',
+                icon: Icons.place,
                 validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
               ),
-              TextFormField(
+              _campoTexto(
                 controller: _tipoCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Tipo (comida, cultura, etc.)',
-                ),
+                label: 'Tipo (comida, cultura, etc.)',
+                icon: Icons.category,
                 validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
               ),
-              TextFormField(
+              _campoTexto(
                 controller: _comentarioCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Comentario (opcional)',
-                ),
+                label: 'Comentario (opcional)',
+                icon: Icons.comment,
                 maxLines: 2,
               ),
-              TextFormField(
+              _campoTexto(
                 controller: _puntuacionCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Puntuación (1-5)',
-                ),
+                label: 'Puntuación (1-5)',
+                icon: Icons.star,
                 keyboardType: TextInputType.number,
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return null;
@@ -158,25 +162,59 @@ class _FormRecomendacionScreenState
                   return null;
                 },
               ),
-              TextFormField(
+              /* _campoTexto(
                 controller: _imagenUrlCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'URL de imagen (opcional)',
-                ),
-              ),
-              TextFormField(
+                label: 'URL de imagen (opcional)',
+                icon: Icons.image,
+              ), */
+              _campoTexto(
                 controller: _ubicacionUrlCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'URL ubicación (opcional)',
-                ),
+                label: 'URL ubicación (opcional)',
+                icon: Icons.map_outlined,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
+              ElevatedButton.icon(
                 onPressed: _guardarRecomendacion,
-                child: const Text('Guardar recomendación'),
+                icon: const Icon(Icons.save),
+                label: const Text('Guardar recomendación'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal.shade600,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // Widget auxiliar reutilizable para campos con estilo
+  Widget _campoTexto({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    FormFieldValidator<String>? validator,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: TextFormField(
+        controller: controller,
+        validator: validator,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon),
+          labelText: label,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );

@@ -110,87 +110,144 @@ class _FormularioViajeScreenState extends ConsumerState<FormularioViajeScreen> {
   @override
   Widget build(BuildContext context) {
     final esEdicion = widget.viaje != null;
+
     return Scaffold(
       appBar: AppBar(title: Text(esEdicion ? 'Editar Viaje' : 'Nuevo Viaje')),
-      body: Padding(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
+              _inputConEstilo(
                 controller: _paisCtrl,
-                decoration: const InputDecoration(labelText: 'País'),
+                label: 'País',
+                icon: Icons.flag,
                 validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
               ),
-              TextFormField(
+              _inputConEstilo(
                 controller: _ciudadCtrl,
-                decoration: const InputDecoration(labelText: 'Ciudad'),
+                label: 'Ciudad',
+                icon: Icons.location_city,
                 validator: (v) => v!.isEmpty ? 'Campo obligatorio' : null,
               ),
-              TextFormField(
+              _inputConEstilo(
                 controller: _regionCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Región (opcional)',
-                ),
+                label: 'Región (opcional)',
+                icon: Icons.map,
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      _fechaInicio == null
-                          ? 'Inicio: (no seleccionado)'
-                          : 'Inicio: ${DateFormat('dd/MM/yyyy').format(_fechaInicio!)}',
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.calendar_today),
+                      label: Text(
+                        _fechaInicio == null
+                            ? 'Inicio'
+                            : DateFormat('dd/MM/yyyy').format(_fechaInicio!),
+                      ),
+                      onPressed: () => _seleccionarFecha(esInicio: true),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.indigo.shade400,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () => _seleccionarFecha(esInicio: true),
-                    child: const Text('Seleccionar'),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
+                  const SizedBox(width: 10),
                   Expanded(
-                    child: Text(
-                      _fechaFin == null
-                          ? 'Fin: (no seleccionado)'
-                          : 'Fin: ${DateFormat('dd/MM/yyyy').format(_fechaFin!)}',
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.calendar_month),
+                      label: Text(
+                        _fechaFin == null
+                            ? 'Fin'
+                            : DateFormat('dd/MM/yyyy').format(_fechaFin!),
+                      ),
+                      onPressed: () => _seleccionarFecha(esInicio: false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.indigo.shade400,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () => _seleccionarFecha(esInicio: false),
-                    child: const Text('Seleccionar'),
                   ),
                 ],
               ),
-              TextFormField(
+              const SizedBox(height: 12),
+              _inputConEstilo(
                 controller: _transporteCtrl,
-                decoration: const InputDecoration(labelText: 'Transporte'),
+                label: 'Transporte',
+                icon: Icons.directions_car,
               ),
-              TextFormField(
+              _inputConEstilo(
                 controller: _alojamientoCtrl,
-                decoration: const InputDecoration(labelText: 'Alojamiento'),
+                label: 'Alojamiento',
+                icon: Icons.hotel,
               ),
-              TextFormField(
+              _inputConEstilo(
                 controller: _notasCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Notas personales',
-                ),
+                label: 'Notas personales',
+                icon: Icons.note_alt,
                 maxLines: 2,
               ),
-              TextFormField(
+              _inputConEstilo(
                 controller: _climaCtrl,
-                decoration: const InputDecoration(labelText: 'Clima'),
+                label: 'Clima',
+                icon: Icons.cloud,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
+              ElevatedButton.icon(
                 onPressed: _guardarViaje,
-                child: Text(esEdicion ? 'Actualizar viaje' : 'Guardar viaje'),
+                icon: const Icon(Icons.save),
+                label: Text(esEdicion ? 'Actualizar viaje' : 'Guardar viaje'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigo,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // Helper visual para campos con estilo
+  Widget _inputConEstilo({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    FormFieldValidator<String>? validator,
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: TextFormField(
+        controller: controller,
+        validator: validator,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon),
+          labelText: label,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );
