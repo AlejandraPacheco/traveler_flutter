@@ -37,4 +37,29 @@ class RecomendacionService {
         .map((item) => Recomendacion.fromMap(item))
         .toList();
   }
+
+  Future<void> guardarFavorito(String userId, String recomendacionId) async {
+    await _supabase.from('favoritos').insert({
+      'user_id': userId,
+      'recomendacion_id': recomendacionId,
+    });
+  }
+
+  Future<List<String>> obtenerIdsFavoritosUsuario(String userId) async {
+    final response = await _supabase
+        .from('favoritos')
+        .select('recomendacion_id')
+        .eq('user_id', userId);
+
+    return (response as List)
+        .map((item) => item['recomendacion_id'] as String)
+        .toList();
+  }
+
+  Future<void> eliminarFavorito(String userId, String recomendacionId) async {
+    await _supabase.from('favoritos').delete().match({
+      'user_id': userId,
+      'recomendacion_id': recomendacionId,
+    });
+  }
 }
